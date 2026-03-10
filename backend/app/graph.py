@@ -4,9 +4,8 @@ from langgraph.constants import END
 from app.agent.schema import AgentState
 from app.search.service import search_node
 from app.qualifier.service import qualifier_node, route_lead
+from app.email.service import email_node
 
-def email_node(state: AgentState) -> dict:
-    return {"draft_email": ""}
 
 def build_sdr_graph():
     graph = StateGraph(AgentState)
