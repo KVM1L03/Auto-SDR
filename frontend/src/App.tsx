@@ -1,11 +1,32 @@
 import { useState } from 'react'
+import type { SubmitEventHandler } from 'react'
+import { runPipeline } from './api/pipeline'
+import type { PipelineResponse } from './api/pipeline/types'
+import { PipelineResult } from './components/PipelineResult'
 
 function App() {
   const [domain, setDomain] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState<PipelineResponse | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault()
-    console.log('Zbadaj lead:', domain)
+    if (!domain.trim()) return
+
+    setLoading(true)
+    setError(null)
+    setResult(null)
+
+    try {
+      const data = await runPipeline(domain.trim())
+      setResult(data)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'An error occurred while analyzing the lead'
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -18,16 +39,20 @@ function App() {
           type="text"
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
-          placeholder="Nazwa domeny"
-          className="px-4 py-3 rounded-lg border border-slate-600 bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Domain name"
+          disabled={loading}
+          className="px-4 py-3 rounded-lg border border-slate-600 bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
         />
         <button
           type="submit"
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
         >
-          Zbadaj Leada
+          {loading ? 'Analyzing...' : 'Analyze Lead'}
         </button>
       </form>
+
+      <PipelineResult result={result} error={error} />
     </div>
   )
 }
