@@ -1,17 +1,29 @@
-import os
 from app.agent.schema import AgentState
-from tavily import TavilyClient
+from tavily import AsyncTavilyClient
 
-def search_node(state: AgentState) -> dict:
+from config import settings
+
+_tavily_client: AsyncTavilyClient | None = None
+
+
+def _get_tavily_client() -> AsyncTavilyClient:
+    """Return cached TavilyClient (singleton)."""
+    global _tavily_client
+    if _tavily_client is None:
+        _tavily_client = AsyncTavilyClient(api_key=settings.tavily_api_key.get_secret_value())
+    return _tavily_client
+
+
+async def search_node(state: AgentState) -> dict:
     domain = state.get("company_domain", "").strip()
     if not domain:
         return {"website_content": ""}
-    
+
     url = f"https://{domain}" if not domain.startswith("http") else domain
-    
+
     try:
-        client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
-        response = client.extract(urls=[url])
+        client = _get_tavily_client()
+        response = await client.extract(urls=[url])
         
         if not response.get("results"):
             return {"website_content": "No results found"}

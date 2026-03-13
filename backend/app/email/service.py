@@ -6,11 +6,13 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 
 from app.agent.schema import AgentState
+from config import settings
 
 logger = logging.getLogger(__name__)
 
 _PROMPTS_PATH = Path(__file__).parent / "prompts.json"
 _prompts_cache: dict | None = None
+_llm: ChatOpenAI | None = None
 
 
 def _load_email_prompts() -> tuple[str, str]:
@@ -26,11 +28,19 @@ def _load_email_prompts() -> tuple[str, str]:
 
 
 def _get_llm() -> ChatOpenAI:
-    """Lazy init of LLM for email generation."""
-    return ChatOpenAI(model="gpt-4o-mini", temperature=0, seed=42)
+    """Return cached LLM (singleton)."""
+    global _llm
+    if _llm is None:
+        _llm = ChatOpenAI(
+            api_key=settings.openai_api_key.get_secret_value(),
+            model="gpt-4o-mini",
+            temperature=0,
+            seed=42,
+        )
+    return _llm
 
 
-def email_node(state: AgentState) -> dict:
+async def email_node(state: AgentState) -> dict:
     """Generate cold email based on company domain and website content."""
     domain = state.get("company_domain", "")
     content = state.get("website_content", "")
@@ -43,7 +53,7 @@ def email_node(state: AgentState) -> dict:
         human_prompt = human_template.format(domain=domain, content=content)
 
         llm = _get_llm()
-        result = llm.invoke([
+        result = await llm.ainvoke([
             SystemMessage(content=system_prompt),
             HumanMessage(content=human_prompt),
         ])

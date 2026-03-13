@@ -7,11 +7,14 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from langgraph.constants import END
 
 from app.agent.schema import AgentState, Qualification
+from config import settings
 
 logger = logging.getLogger(__name__)
 
 _PROMPTS_PATH = Path(__file__).parent / "prompts.json"
 _system_prompt_cache: str | None = None
+_structured_llm = None
+
 
 def _load_system_prompt() -> str:
     """Load qualifier system prompt from prompts.json (cached)."""
@@ -22,11 +25,23 @@ def _load_system_prompt() -> str:
         _system_prompt_cache = data.get("qualifier_system", "")
     return _system_prompt_cache
 
-def _get_structured_llm():
-    """Lazy init of LLM with structured output."""
-    return ChatOpenAI(model="gpt-4o-mini", temperature=0, seed=42).with_structured_output(Qualification)
 
-def qualifier_node(state: AgentState) -> dict:
+def _get_structured_llm():
+    """Return cached structured LLM (singleton)."""
+    global _structured_llm
+    if _structured_llm is None:
+        _structured_llm = (
+            ChatOpenAI(
+                api_key=settings.openai_api_key.get_secret_value(),
+                model="gpt-4o-mini",
+                temperature=0,
+                seed=42,
+            )
+            .with_structured_output(Qualification)
+        )
+    return _structured_llm
+
+async def qualifier_node(state: AgentState) -> dict:
     content = state.get("website_content", "")
     
     if not content or len(content.strip()) < 50:
@@ -35,7 +50,7 @@ def qualifier_node(state: AgentState) -> dict:
     try:
         system_prompt = _load_system_prompt()
         structured_llm = _get_structured_llm()
-        result = structured_llm.invoke([
+        result = await structured_llm.ainvoke([
             SystemMessage(content=system_prompt),
             HumanMessage(content=f"WEBSITE CONTENT:\n{content}"),
         ])

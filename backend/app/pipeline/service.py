@@ -1,11 +1,11 @@
-from app.graph import build_sdr_graph
+from app.graph import get_sdr_graph
 from app.pipeline.schema import PipelineResponse
 
 
-def run_pipeline(company_domain: str) -> PipelineResponse:
+async def run_pipeline(company_domain: str) -> PipelineResponse:
     """Run full SDR pipeline: search → qualify → (email if qualified)."""
-    graph = build_sdr_graph()
-    result = graph.invoke({"company_domain": company_domain})
+    graph = get_sdr_graph()
+    result = await graph.ainvoke({"company_domain": company_domain})
     return PipelineResponse(
         company_domain=company_domain,
         is_qualified=result.get("is_qualified", False),
