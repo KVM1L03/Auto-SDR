@@ -1,7 +1,11 @@
-from app.agent.schema import AgentState
+import logging
+
 from tavily import AsyncTavilyClient
 
+from app.agent.schema import AgentState
 from config import settings
+
+logger = logging.getLogger(__name__)
 
 _tavily_client: AsyncTavilyClient | None = None
 
@@ -31,4 +35,5 @@ async def search_node(state: AgentState) -> dict:
         raw_content = response["results"][0].get("raw_content", "")
         return {"website_content": raw_content[:1000]}
     except Exception as e:
-        return {"website_content": f"Error: {str(e)}"}
+        logger.exception("Tavily extract failed: %s", e)
+        raise

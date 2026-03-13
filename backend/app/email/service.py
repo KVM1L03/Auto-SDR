@@ -63,4 +63,4 @@ async def email_node(state: AgentState) -> dict:
         return {"draft_email": draft_email.strip()}
     except Exception as e:
         logger.exception("Email node error: %s", e)
-        return {"draft_email": f"Error generating email: {str(e)}"}
+        raise

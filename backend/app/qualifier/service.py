@@ -62,10 +62,7 @@ async def qualifier_node(state: AgentState) -> dict:
         }
     except Exception as e:
         logger.exception("Qualifier node error: %s", e)
-        return {
-            "is_qualified": False, 
-            "reason": f"System Error: {str(e)}"
-        }
+        raise
 
 def route_lead(state: AgentState) -> str:
     """Early stopping - reject non-qualified leads."""
