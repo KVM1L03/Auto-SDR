@@ -30,29 +30,33 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-8">
-      <h1 className="text-2xl font-bold text-white mb-8">
-        Auto-SDR
-      </h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md">
-        <input
-          type="text"
-          value={domain}
-          onChange={(e) => setDomain(e.target.value)}
-          placeholder="Domain name"
-          disabled={loading}
-          className="px-4 py-3 rounded-lg border border-slate-600 bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
-        >
-          {loading ? 'Analyzing...' : 'Analyze Lead'}
-        </button>
-      </form>
+    <div className="min-h-screen bg-stone-50">
+      <div className="flex flex-col gap-6 max-w-xl w-full mx-auto mt-12 px-8">
+        <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-8">
+          <h1 className="text-2xl font-bold text-stone-900 mb-6">
+            Auto-SDR
+          </h1>
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              value={domain}
+              onChange={(e) => setDomain(e.target.value)}
+              placeholder="Enter company domain (e.g. example.com)"
+              disabled={loading}
+              className="w-full py-3 px-4 rounded-lg border border-stone-300 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all disabled:opacity-50"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 px-4 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-600"
+            >
+              {loading ? 'Analyzing...' : 'Analyze Lead'}
+            </button>
+          </form>
+        </div>
 
-      <PipelineResult result={result} error={error} />
+        <PipelineResult result={result} error={error} loading={loading} />
+      </div>
     </div>
   )
 }
