@@ -5,6 +5,7 @@
 ---
 
 ## 🔴 Demo: https://auto-sdr-mu.vercel.app
+![video](https://github.com/user-attachments/assets/f7b6c8f5-db7a-4864-81df-9d3dfa2be4ee)
 
 ---
 
