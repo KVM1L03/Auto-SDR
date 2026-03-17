@@ -4,6 +4,10 @@
 
 ---
 
+## 🔴 Demo: https://auto-sdr-mu.vercel.app
+
+---
+
 ## Overview
 
 Auto-SDR automates the early stages of outbound sales: it visits a company's website, extracts key information, determines whether the lead is qualified for outreach, and—if so—drafts a tailored cold email. Built with a modern stack and designed for both API and UI usage.
