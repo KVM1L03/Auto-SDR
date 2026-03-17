@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/search", tags=["search"])
 
 
-@router.post("/", response_model=SearchResponse)
+@router.post("", response_model=SearchResponse)
 async def search_endpoint(request: SearchRequest):
     state: AgentState = {"company_domain": request.company_domain}
     try:
